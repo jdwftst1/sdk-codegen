@@ -32,7 +32,7 @@ from looker_sdk.sdk.api31 import methods, methods as methods31  # noqa:F401
 from looker_sdk.sdk.api40 import methods as methods40
 from looker_sdk.sdk.api31 import models, models as models31  # noqa:F401
 from looker_sdk.sdk.api40 import models as models40  # noqa: F401
-
+from looker_sdk.sdk import constants
 
 API_SETTINGS_API_VERSION_DEPRECATED = "API_VERSION config value is no longer needed."
 
@@ -46,16 +46,21 @@ def init31(
 ) -> methods31.Looker31SDK:
     """Default dependency configuration
     """
-    settings = api_settings.ApiSettings(config_file, section)
+    api_version = "3.1"
+    settings = api_settings.ApiSettings(
+        api_version, config_file, section, constants.environment_prefix
+    )
     if not settings.is_configured():
         raise InitError("Missing required configuration values.")
     transport = requests_transport.RequestsTransport.configure(settings)
     return methods31.Looker31SDK(
-        auth_session.AuthSession(settings, transport, serialize.deserialize31, "3.1"),
+        auth_session.AuthSession(
+            settings, transport, serialize.deserialize31, api_version
+        ),
         serialize.deserialize31,
         serialize.serialize,
         transport,
-        "3.1",
+        api_version,
     )
 
 
@@ -64,14 +69,17 @@ def init40(
 ) -> methods40.Looker40SDK:
     """Default dependency configuration
     """
-    settings = api_settings.ApiSettings(config_file, section)
+    api_version = "4.0"
+    settings = api_settings.ApiSettings(api_version, config_file, section)
     if not settings.is_configured():
         raise InitError("Missing required configuration values.")
     transport = requests_transport.RequestsTransport.configure(settings)
     return methods40.Looker40SDK(
-        auth_session.AuthSession(settings, transport, serialize.deserialize40, "4.0"),
+        auth_session.AuthSession(
+            settings, transport, serialize.deserialize40, api_version
+        ),
         serialize.deserialize40,
         serialize.serialize,
         transport,
-        "4.0",
+        api_version,
     )
